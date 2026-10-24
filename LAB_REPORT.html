@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Records Using JDBC - Lab Practical Report</title>
+    <style>
+        body {
+            font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #222;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 25px;
+            background: #fff;
+        }
+        .header-box {
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        h1 {
+            font-size: 26px;
+            margin: 0 0 10px 0;
+            color: #111;
+        }
+        .meta-row {
+            font-size: 14px;
+            font-weight: 500;
+            color: #444;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+        h2 {
+            font-size: 18px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-top: 28px;
+            color: #1a365d;
+        }
+        h3 {
+            font-size: 16px;
+            margin-top: 20px;
+            color: #2b6cb0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 14px 0;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #888;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+        }
+        code, pre {
+            font-family: "JetBrains Mono", Consolas, "Courier New", monospace;
+            background-color: #f7f9fa;
+        }
+        code {
+            padding: 2px 5px;
+            border-radius: 3px;
+            border: 1px solid #e2e8f0;
+            font-size: 13.5px;
+        }
+        pre {
+            padding: 12px;
+            border: 1px solid #d2d6dc;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+        .result-box {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid #2b6cb0;
+            padding: 12px 16px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-size: 13.5px;
+        }
+        .caption {
+            font-size: 13px;
+            color: #555;
+            font-style: italic;
+            margin: 6px 0 16px 0;
+        }
+        .success-text {
+            color: #2f855a;
+            font-weight: bold;
+        }
+        @media print {
+            body { max-width: 100%; margin: 15mm; padding: 0; font-size: 13px; }
+            h2 { page-break-after: avoid; }
+            .result-box, table, pre { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-box">
+        <h1>Student Records Using JDBC</h1>
+        <div class="meta-row">
+            <span><strong>Name:</strong> ________________________________</span>
+            <span><strong>Roll Number:</strong> ________________________</span>
+        </div>
+        <div class="meta-row">
+            <span><strong>Date:</strong> ________________________________</span>
+            <span><strong>Branch / Semester:</strong> __________________</span>
+        </div>
+    </div>
+
+    <h2>Aim and Essential Theory</h2>
+    <p><strong>Aim:</strong> To add, update, delete (drop), and view student records using an HTML frontend, a Java backend, and JDBC connectivity to an Oracle Database.</p>
+    <p>
+        The database contains a <code>STUDENTS</code> table with attributes: <code>roll_no</code> (Primary Key), <code>name</code>, <code>email</code> (Unique), <code>department</code>, <code>semester</code>, and <code>gpa</code>. User actions in the web frontend dispatch HTTP requests to the Java backend. The backend executes pre-compiled SQL queries via <code>PreparedStatement</code> to perform <code>INSERT</code>, <code>UPDATE</code>, and <code>DELETE</code> operations.
+    </p>
+    <p>
+        <strong>Connection String:</strong> <code>jdbc:oracle:thin:@localhost:1521:xe</code> | <strong>User:</strong> <code>system</code> | <strong>Driver:</strong> <code>oracle.jdbc.OracleDriver</code> (Type 4 Thin Driver). <code>executeUpdate()</code> returns the number of rows modified. Fresh <code>SELECT</code> queries retrieve verified records.
+    </p>
+
+    <h2>Run</h2>
+    <p>Install JDK 17 or newer. Open project directory and launch:</p>
+    <ul>
+        <li><strong>Windows:</strong> Double click <code>run.bat</code></li>
+        <li><strong>Linux / macOS:</strong> Run <code>sh run.sh</code></li>
+    </ul>
+    <p>Then open <code>http://localhost:5000</code> in your web browser. Stop the server with <code>Ctrl + C</code>.</p>
+
+    <h2>Initial Database State</h2>
+    <p>Fresh <code>SELECT</code> query through JDBC before user operations:</p>
+    <code>SELECT * FROM students ORDER BY roll_no;</code>
+    <table>
+        <tr><th>Roll Number</th><th>Student Name</th><th>Email</th><th>Department</th><th>Semester</th><th>GPA</th></tr>
+        <tr><td colspan="6" style="text-align: center; color: #777;"><em>No student records currently stored (Total students: 0)</em></td></tr>
+    </table>
+    <div class="caption">Figure 1. No students yet in the database.</div>
+
+    <h2>Add the First Student</h2>
+    <p>Enter Roll No <strong>CS101</strong>, Name <strong>Aarav Sharma</strong>, Email <strong>aarav@college.edu</strong>, Department <strong>Computer Science</strong>, Semester <strong>5</strong>, GPA <strong>8.85</strong>, then click <strong>Add Student</strong>. The student count changes from 0 to 1.</p>
+    <div class="result-box">
+        <strong>ADD: <span class="success-text">Saved successfully.</span></strong><br>
+        SQL: <code>INSERT INTO students (roll_no, name, email, department, semester, gpa) VALUES (?, ?, ?, ?, ?, ?)</code><br>
+        Student Roll No: CS101<br>
+        Rows affected: 1
+    </div>
+    <div class="caption">Figure 2. Button result and SQL executed through JDBC PreparedStatement.</div>
+
+    <code>SELECT * FROM students ORDER BY roll_no;</code>
+    <table>
+        <tr><th>Roll Number</th><th>Student Name</th><th>Email</th><th>Department</th><th>Semester</th><th>GPA</th></tr>
+        <tr><td><strong>CS101</strong></td><td>Aarav Sharma</td><td>aarav@college.edu</td><td>Computer Science</td><td>5</td><td>8.85</td></tr>
+    </table>
+    <div class="caption">Figure 3. Fresh SELECT result. Student CS101 is saved in the database (Total students: 1).</div>
+
+    <h2>Add a Second Student</h2>
+    <p>Enter Roll No <strong>IT102</strong>, Name <strong>Meera Patel</strong>, Email <strong>meera@college.edu</strong>, Department <strong>Information Technology</strong>, Semester <strong>3</strong>, GPA <strong>9.20</strong>, then click <strong>Add Student</strong>. Count changes from 1 to 2; CS101 remains.</p>
+    <div class="result-box">
+        <strong>ADD: <span class="success-text">Saved successfully.</span></strong><br>
+        SQL: <code>INSERT INTO students (roll_no, name, email, department, semester, gpa) VALUES (?, ?, ?, ?, ?, ?)</code><br>
+        Student Roll No: IT102<br>
+        Rows affected: 1
+    </div>
+    <div class="caption">Figure 4. Second student addition result through JDBC.</div>
+
+    <code>SELECT * FROM students ORDER BY roll_no;</code>
+    <table>
+        <tr><th>Roll Number</th><th>Student Name</th><th>Email</th><th>Department</th><th>Semester</th><th>GPA</th></tr>
+        <tr><td><strong>CS101</strong></td><td>Aarav Sharma</td><td>aarav@college.edu</td><td>Computer Science</td><td>5</td><td>8.85</td></tr>
+        <tr><td><strong>IT102</strong></td><td>Meera Patel</td><td>meera@college.edu</td><td>Information Technology</td><td>3</td><td>9.20</td></tr>
+    </table>
+    <div class="caption">Figure 5. Fresh SELECT result. Both students are present in the database (Total students: 2).</div>
+
+    <h2>Update an Existing Student</h2>
+    <p>Select student <strong>CS101</strong>, update Name to <strong>Aarav Sharma (Honors)</strong>, Semester to <strong>6</strong>, and GPA to <strong>9.10</strong>, then click <strong>Update Changes</strong>. One row changes and the student count remains 2.</p>
+    <div class="result-box">
+        <strong>UPDATE: <span class="success-text">Saved successfully.</span></strong><br>
+        SQL: <code>UPDATE students SET name = ?, email = ?, department = ?, semester = ?, gpa = ? WHERE roll_no = ?</code><br>
+        Student Roll No: CS101<br>
+        Rows affected: 1
+    </div>
+    <div class="caption">Figure 6. Update operation result through JDBC.</div>
+
+    <code>SELECT * FROM students ORDER BY roll_no;</code>
+    <table>
+        <tr><th>Roll Number</th><th>Student Name</th><th>Email</th><th>Department</th><th>Semester</th><th>GPA</th></tr>
+        <tr><td><strong>CS101</strong></td><td>Aarav Sharma (Honors)</td><td>aarav@college.edu</td><td>Computer Science</td><td>6</td><td>9.10</td></tr>
+        <tr><td><strong>IT102</strong></td><td>Meera Patel</td><td>meera@college.edu</td><td>Information Technology</td><td>3</td><td>9.20</td></tr>
+    </table>
+    <div class="caption">Figure 7. Fresh SELECT result. ID CS101 has updated semester and GPA.</div>
+
+    <h2>Delete / Drop an Existing Student</h2>
+    <p>Select student <strong>IT102</strong> and click <strong>Drop Student</strong>. One row is removed and count changes from 2 to 1.</p>
+    <div class="result-box">
+        <strong>DELETE / DROP: <span class="success-text">Saved successfully.</span></strong><br>
+        SQL: <code>DELETE FROM students WHERE roll_no = ?</code><br>
+        Student Roll No: IT102<br>
+        Rows affected: 1
+    </div>
+    <div class="caption">Figure 8. Drop operation result through JDBC.</div>
+
+    <code>SELECT * FROM students ORDER BY roll_no;</code>
+    <table>
+        <tr><th>Roll Number</th><th>Student Name</th><th>Email</th><th>Department</th><th>Semester</th><th>GPA</th></tr>
+        <tr><td><strong>CS101</strong></td><td>Aarav Sharma (Honors)</td><td>aarav@college.edu</td><td>Computer Science</td><td>6</td><td>9.10</td></tr>
+    </table>
+    <div class="caption">Figure 9. Fresh SELECT result. IT102 is absent; CS101 remains intact (Total students: 1).</div>
+
+    <h2>Refresh</h2>
+    <p>Click <strong>Refresh</strong>. The saved records remain unchanged because this control performs a read-only <code>SELECT</code> query.</p>
+    <div class="result-box">
+        Ready. Data refreshed from database. No DML modification performed.
+    </div>
+    <div class="caption">Figure 10. Refresh reads the database without changing any records.</div>
+
+    <h2>Saved Database After Server Restart</h2>
+    <p>After stopping and restarting Java, CS101 still has the updated values and IT102 is absent. This confirms that all JDBC actions committed and persisted to disk.</p>
+    <code>SELECT * FROM students ORDER BY roll_no;</code>
+    <table>
+        <tr><th>Roll Number</th><th>Student Name</th><th>Email</th><th>Department</th><th>Semester</th><th>GPA</th></tr>
+        <tr><td><strong>CS101</strong></td><td>Aarav Sharma (Honors)</td><td>aarav@college.edu</td><td>Computer Science</td><td>6</td><td>9.10</td></tr>
+    </table>
+    <div class="caption">Figure 11. The update and deletion remain saved after restart.</div>
+
+    <p style="margin-top: 20px; font-weight: bold; color: #2b6cb0;">
+        Result: Add, Update, and Delete/Drop successfully changed the database through JDBC.
+    </p>
+
+    <h2>Complete Backend Source Code</h2>
+    <p><strong>File: StudentDAO.java</strong></p>
+    <pre><code>package com.student.dao;
+
+import com.student.model.Student;
+import com.student.util.DBConnection;
+import java.sql.*;
+import java.util.*;
+
+public class StudentDAO {
+
+    public List&lt;Student&gt; getAllStudents() throws SQLException {
+        List&lt;Student&gt; list = new ArrayList&lt;&gt;();
+        String sql = "SELECT roll_no, name, email, department, semester, gpa FROM students ORDER BY roll_no ASC";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(new Student(
+                    rs.getString("roll_no"),
+                    rs.getString("name"),
+                    rs.getString("email"),
+                    rs.getString("department"),
+                    rs.getInt("semester"),
+                    rs.getDouble("gpa")
+                ));
+            }
+        }
+        return list;
+    }
+
+    public boolean addStudent(Student s) throws SQLException {
+        String sql = "INSERT INTO students (roll_no, name, email, department, semester, gpa) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, s.getRollNo().trim());
+            pstmt.setString(2, s.getName().trim());
+            pstmt.setString(3, s.getEmail().trim());
+            pstmt.setString(4, s.getDepartment().trim());
+            pstmt.setInt(5, s.getSemester());
+            pstmt.setDouble(6, s.getGpa());
+            return pstmt.executeUpdate() &gt; 0;
+        }
+    }
+
+    public boolean updateStudent(Student s) throws SQLException {
+        String sql = "UPDATE students SET name = ?, email = ?, department = ?, semester = ?, gpa = ? WHERE roll_no = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, s.getName().trim());
+            pstmt.setString(2, s.getEmail().trim());
+            pstmt.setString(3, s.getDepartment().trim());
+            pstmt.setInt(4, s.getSemester());
+            pstmt.setDouble(5, s.getGpa());
+            pstmt.setString(6, s.getRollNo().trim());
+            return pstmt.executeUpdate() &gt; 0;
+        }
+    }
+
+    public boolean dropStudent(String rollNo) throws SQLException {
+        String sql = "DELETE FROM students WHERE roll_no = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, rollNo.trim());
+            return pstmt.executeUpdate() &gt; 0;
+        }
+    }
+}</code></pre>
+
+    <h2>Complete Database Schema &amp; Launcher Code</h2>
+    <p><strong>File: schema.sql</strong></p>
+    <pre><code>CREATE TABLE students (
+    roll_no     VARCHAR2(20)    NOT NULL PRIMARY KEY,
+    name        VARCHAR2(100)   NOT NULL,
+    email       VARCHAR2(100)   NOT NULL UNIQUE,
+    department  VARCHAR2(50)    NOT NULL,
+    semester    NUMBER(2)       DEFAULT 1,
+    gpa         NUMBER(3,2)     DEFAULT 0.00
+);
+COMMIT;</code></pre>
+
+    <p><strong>File: run.bat (Windows)</strong></p>
+    <pre><code>@echo off
+cd /d "%~dp0"
+javac -cp "lib\ojdbc6.jar" -d bin src\com\student\model\*.java src\com\student\dao\*.java src\com\student\util\*.java src\com\student\server\*.java src\com\student\*.java
+if errorlevel 1 exit /b 1
+start "" http://localhost:5000
+java -cp "bin;lib\ojdbc6.jar" com.student.Main</code></pre>
+
+</body>
+</html>
